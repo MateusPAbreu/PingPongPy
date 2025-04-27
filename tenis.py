@@ -1,44 +1,44 @@
 import sys, pygame, random
 
 class Ball:
-    x = [0]
-    y = [0]
+    x = 0
+    y = 0
     def __init__(self, speed, screen, x, y):
         self.speed = speed
         self.image = pygame.image.load("ball.png").convert()
         Ball.x = x
         Ball.y = y
-        screen.blit(self.image, (x,y))
+        screen.blit(self.image, (Ball.x, Ball.y))
         self.area = screen.get_rect()
         
     
     def move(self, screen, dir):
         if dir == 1: #go up to the left
-            print(1, " before ", Ball.x, " ", Ball.y)
+            # print(1, " before ", Ball.x, " ", Ball.y)
             Ball.x = Ball.x - self.speed
             Ball.y = Ball.y - self.speed
-            print(1, " after ", Ball.x, " ", Ball.y)
+            # print(1, " after ", Ball.x, " ", Ball.y)
             screen.blit(pygame.image.load("background.png"), (0, 0)) #draw the background
             screen.blit(self.image, (Ball.x, Ball.y))
         elif dir == 2: #go up to the right
-            print(3, " before ", Ball.x, " ", Ball.y)
+            # print(3, " before ", Ball.x, " ", Ball.y)
             Ball.x = Ball.x + self.speed
             Ball.y = Ball.y - self.speed
-            print(3, " after ", Ball.x, " ", Ball.y)
+            # print(3, " after ", Ball.x, " ", Ball.y)
             screen.blit(pygame.image.load("background.png"), (0, 0)) #draw the background
             screen.blit(self.image, (Ball.x, Ball.y))
         elif dir == 3: #go down to the left
-            print(2, " before ", Ball.x, " ", Ball.y)
+            # print(2, " before ", Ball.x, " ", Ball.y)
             Ball.x = Ball.x - self.speed
             Ball.y = Ball.y + self.speed
-            print(2, " after ", Ball.x, " ", Ball.y)
+            # print(2, " after ", Ball.x, " ", Ball.y)
             screen.blit(pygame.image.load("background.png"), (0, 0)) #draw the background
             screen.blit(self.image, (Ball.x, Ball.y))
         elif dir == 4: #go down to the right
-            print(4, " before ", Ball.x, " ", Ball.y)
+            # print(4, " before ", Ball.x, " ", Ball.y)
             Ball.x = Ball.x + self.speed
             Ball.y = Ball.y + self.speed
-            print(4, " after ", Ball.x, " ", Ball.y)
+            # print(4, " after ", Ball.x, " ", Ball.y)
             screen.blit(pygame.image.load("background.png"), (0, 0)) #draw the background
             screen.blit(self.image, (Ball.x, Ball.y))
         Ball.checkBounds(self, screen)
@@ -52,12 +52,16 @@ class Ball:
         elif Ball.x >=800:
             print("Player wins")
             #mark points to the player
-        elif Ball.y <= 0:
+        elif Ball.y <= 0: #TODO: I think ball logic for bounds is working but I will check later after checking collision
             dir = random.randint(3, 4) #I checked if a collision happened at the top, and if it did, I am randomly choosing between going down through right or left
             Ball.move(self, screen, dir)
         elif Ball.y >= 600:
             dir = random.randint(1, 2) #I checked if a collision happened at the bottom, and if it did, I am randomly choosing between going up through right or left
             Ball.move(self, screen, dir)
+
+    def collision():
+        print("collide")
+
 
 class Player:
     x = 0 #static variables, belong to the class
@@ -92,13 +96,27 @@ class Player:
 
 
 class Enemy:
-
-    def __init__(self, speed, screen):
+    x = 0
+    y = 0
+    def __init__(self, speed, screen, x, y):
+        self.speed = speed
+        Enemy.x = x
+        Enemy.y = y
         self.enemy = pygame.image.load("enemy.png").convert()
-        screen.blit(self.enemy, (760, 10))
+        screen.blit(self.enemy, (Enemy.x, Enemy.y))
 
-    # def move:
-        
+    def move(self, screen, yBall, speed):
+        if yBall > Enemy.y:
+            print("lower enemy")
+            Enemy.y = Enemy.y + speed
+            screen.blit(pygame.image.load("background.png"), (0, 0)) #draw the background
+            screen.blit(self.enemy, (Enemy.x, Enemy.y))
+        elif yBall < Enemy.y:
+            print("raise enemy")
+            Enemy.y = Enemy.y - speed
+            screen.blit(pygame.image.load("background.png"), (0, 0)) #draw the background
+            screen.blit(self.enemy, (Enemy.x, Enemy.y))
+
 
 class Main:
     pygame.init()
@@ -120,12 +138,14 @@ class Main:
     y = 10
     xBall = 400
     yBall = 300
+    xEnemy = 760 
+    yEnemy = 10
     dir = random.randint(1, 4)
 
     while True:
         player = Player(speed, screen, x, y)
         ball = Ball(ballSpeed, screen, xBall, yBall)
-        enemy = Enemy(speed, screen)
+        enemy = Enemy(speed, screen, xEnemy, yEnemy)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT: 
@@ -141,4 +161,8 @@ class Main:
             ball.move(screen, dir)
             xBall = ball.x
             yBall = ball.y
+
+            enemy.move(screen, yBall, speed)
+            yEnemy = enemy.y
+
         pygame.display.update()
